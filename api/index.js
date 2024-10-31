@@ -32,7 +32,7 @@ app.use(express.json());
 
 app.get('/card', async (req, res) => {
   try {
-    const response = await db.collection('card').get();
+    const response = await db.collection('cartoes').get();
     const card = response.docs.map(doc => ({
       id: doc.id, ...doc.data(),
     }));
@@ -49,8 +49,8 @@ app.get('/card', async (req, res) => {
 app.post('/card', async (req, res) => {
   const { title, value, image } = req.body;
   if (!title) {
-    res.status(400).json({ mensagem: 'Linguagem do cartão inválida!' });
-    console.log('Novo cartão não cadastrado, linguagem inválida!');
+    res.status(400).json({ mensagem: 'title do cartão inválida!' });
+    console.log('Novo cartão não cadastrado, title inválida!');
   } else if (!value) {
     res.status(400).json({ mensagem: 'Nome do cartão inválido!' });
     console.log('Novo cartão não cadastrado, value inválido!');
@@ -59,8 +59,8 @@ app.post('/card', async (req, res) => {
     console.log('Novo cartão não cadastrado, imagem inválida!');
   } else {
     try {
-      const novoCartaoRef = await db.collection('card').add({
-        linguagem: title, //propriedade diferente do value da variavel
+      const novoCartaoRef = await db.collection('cartoes').add({
+        title: title, //propriedade diferente do value da variavel
         value: value,
         image, //propriedade com mesmo value da variavel
         criadoEm: admin.firestore.FieldValue.serverTimestamp()
@@ -85,7 +85,7 @@ app.delete('/card', async (req, res) => {
     console.log('ID do cartão não fornecido');
   } else {
     try {
-      const cartaoRef = db.collection('card').doc(id);
+      const cartaoRef = db.collection('cartoes').doc(id);
       const doc = await cartaoRef.get();
       if (!doc.exists) {
         res.status(404).json({
@@ -110,13 +110,13 @@ app.delete('/card', async (req, res) => {
 
 
 app.put('/card', async (req, res) => {
-  const { linguagem, value, image, id } = req.body;
+  const { title, value, image, id } = req.body;
   if (!id) {
     res.status(400).json({ mensagem: 'ID do cartão não fornecido' });
     console.log('Cartão não atualizado, ID inválido.');
   } else {
     try {
-      const cartaoRef = db.collection('card').doc(id);
+      const cartaoRef = db.collection('cartoes').doc(id);
       const doc = await cartaoRef.get();
       if (!doc.exists) {
         res.status(404).json({
@@ -126,7 +126,7 @@ app.put('/card', async (req, res) => {
         console.log('Cartão não encontrado');
       } else {
         const dadosAtualizados = {};
-        if (linguagem) dadosAtualizados.linguagem = linguagem;
+        if (title) dadosAtualizados.title = title;
         if (value) dadosAtualizados.value = value;
         if (image) dadosAtualizados.image = image;
         await cartaoRef.update(dadosAtualizados);
